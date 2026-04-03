@@ -1,0 +1,73 @@
+---
+name: macOS Package
+
+on:
+  push:
+    branches: [master]
+    tags: ['*']
+  workflow_dispatch:
+
+jobs:
+  macos_pkg:
+    runs-on: macos-latest
+    steps:
+      - name: Install dependencies
+        run: brew install make pkgconf cairo freetype dylibbundler
+
+      - uses: actions/checkout@v4
+
+      - name: Configure project
+        run: gmake config VERBOSE=1 FEATURES='clap lv2 ui vst3'
+
+      - name: Fetch project dependencies
+        run: gmake fetch
+
+      - name: Build project
+        run: gmake VERBOSE=1
+
+      - name: Get version
+        id: version
+        run: |
+          VER=$(grep 'ARTIFACT_VERSION' project.mk | head -1 | sed 's/.*= *//')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Stage install
+        run: gmake install DESTDIR=${{ runner.temp }}/stage
+
+      - name: Bundle dylib dependencies
+        run: |
+          BUNDLE="${{ runner.temp }}/stage/Library/Audio/Plug-Ins/VST3/lsp-plugins.vst3"
+          dylibbundler -od -b \
+            -x "$BUNDLE/Contents/MacOS/lsp-plugins" \
+            -d "$BUNDLE/Contents/Frameworks/" \
+            -p "@loader_path/../Frameworks/"
+          # Ad-hoc sign all bundled dylibs, then the bundle
+          for lib in "$BUNDLE"/Contents/Frameworks/*.dylib; do
+            codesign --force --sign - "$lib"
+          done
+          codesign --force --deep --sign - "$BUNDLE"
+
+          echo "Binary dependencies after fixup:"
+          otool -L "$BUNDLE/Contents/MacOS/lsp-plugins"
+
+      - name: Build pkg
+        run: |
+          pkgbuild \
+            --root "${{ runner.temp }}/stage" \
+            --identifier "in.lsp-plug.plugins" \
+            --version "${{ steps.version.outputs.version }}" \
+            --install-location "/" \
+            "${{ runner.temp }}/lsp-plugins-${{ steps.version.outputs.version }}-macos.pkg"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lsp-plugins-${{ steps.version.outputs.version }}-macos.pkg
+          path: ${{ runner.temp }}/lsp-plugins-${{ steps.version.outputs.version }}-macos.pkg
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ runner.temp }}/lsp-plugins-${{ steps.version.outputs.version }}-macos.pkg
+          generate_release_notes: true
