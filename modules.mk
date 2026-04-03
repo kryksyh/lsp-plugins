@@ -92,18 +92,18 @@ LSP_TK_LIB_TYPE            := src
 LSP_TK_LIB_URL_RO          := https://github.com/lsp-plugins/$(LSP_TK_LIB_NAME).git
 LSP_TK_LIB_URL_RW          := git@github.com:lsp-plugins/$(LSP_TK_LIB_NAME).git
 
-LSP_WS_LIB_VERSION         := 1.0.33
+LSP_WS_LIB_VERSION         := master
 LSP_WS_LIB_NAME            := lsp-ws-lib
 LSP_WS_LIB_TYPE            := src
-LSP_WS_LIB_URL_RO          := https://github.com/lsp-plugins/$(LSP_WS_LIB_NAME).git
-LSP_WS_LIB_URL_RW          := git@github.com:lsp-plugins/$(LSP_WS_LIB_NAME).git
+LSP_WS_LIB_URL_RO          := https://github.com/kryksyh/$(LSP_WS_LIB_NAME).git
+LSP_WS_LIB_URL_RW          := git@github.com:kryksyh/$(LSP_WS_LIB_NAME).git
 
 # Plugin-related module dependencies
-LSP_PLUGIN_FW_VERSION      := 1.0.36
+LSP_PLUGIN_FW_VERSION      := master
 LSP_PLUGIN_FW_NAME         := lsp-plugin-fw
 LSP_PLUGIN_FW_TYPE         := src
-LSP_PLUGIN_FW_URL_RO       := https://github.com/lsp-plugins/$(LSP_PLUGIN_FW_NAME).git
-LSP_PLUGIN_FW_URL_RW       := git@github.com:lsp-plugins/$(LSP_PLUGIN_FW_NAME).git
+LSP_PLUGIN_FW_URL_RO       := https://github.com/kryksyh/$(LSP_PLUGIN_FW_NAME).git
+LSP_PLUGIN_FW_URL_RW       := git@github.com:kryksyh/$(LSP_PLUGIN_FW_NAME).git
 
 LSP_PLUGINS_SHARED_VERSION := 1.0.35
 LSP_PLUGINS_SHARED_NAME    := lsp-plugins-shared
